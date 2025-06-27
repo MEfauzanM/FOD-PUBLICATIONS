@@ -1,0 +1,41 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+a{
+    text-decoration: none;
+    font-size: 20px;
+    font-family: poppins;
+    font-weight: 500;
+    color: #ffffff;
+}
+
+.header {
+    position: absolute; /* or use 'fixed' if you want it to stay when scrolling */
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 40px; /* Add spacing */
+    background: transparent;
+    z-index: 1000; /* Bring it to the front */
+}
+
+.links{
+    display: flex;
+    list-style: none;
+    gap: 40px;
+}   
+
+.header h1{
+    color: #ffffff;
+    font-family: poppins;
+    font-size:30px
+}
+
+
