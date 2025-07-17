@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FOD PUBLICATION | WORKS</title>
+</head>
+<body>
+    <h1>All Works</h1>
+  <label>Filter Language: 
+    <select id="lang">
+      <option value="">All</option>
+      <option>English</option>
+      <option>Malayalam</option>
+    </select>
+  </label>
+  <label>Type: 
+    <select id="type">
+      <option value="">All</option>
+      <option>Poem</option>
+      <option>Story</option>
+      <option>Essay</option>
+      <option>Short Story</option>
+    </select>
+  </label>
+  <button onclick="loadWorks()">Filter</button>
+
+  <div id="works"></div>
+
+  <script>
+    function loadWorks() {
+      const lang = document.getElementById('lang').value;
+      const type = document.getElementById('type').value;
+      let url = '/api/works';
+      if (lang || type) {
+        url += `?language=${lang}&type=${type}`;
+      }
+
+      fetch(url)
+        .then(res => res.json())
+        .then(data => {
+          const container = document.getElementById('works');
+          container.innerHTML = '';
+          data.forEach(w => {
+            container.innerHTML += `
+              <div style="border:1px solid #ccc; padding:10px; margin:10px;">
+                <img src="${w.cover}" width="150"><br>
+                <strong>${w.title}</strong><br>
+                <em>${w.language} | ${w.type}</em><br>
+                <a href="${w.file}" target="_blank">Read</a><br>
+                Author: ${w.author}
+              </div>
+            `;
+          });
+        });
+    }
+
+    window.onload = loadWorks;
+  </script>
+</body>
+</html>
