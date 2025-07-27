@@ -1,42 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <link rel="stylesheet" href="/styles/common.css">
-  <title>FOD PUBLICATION | AUTHORS</title>
+  <meta charset="UTF-8">
+  <title>Authors</title>
+  <link rel="stylesheet" href="styles/common.css">
   <style>
-    body {
-      /* font-family: sans-serif; */
-    }
-    .author-card {
-      border: 1px solid #ccc;
-      padding: 15px;
-      margin: 10px;
-      cursor: pointer;
-    }
-    .author-bio {
-      display: none;
-      margin-top: 10px;
-      border-top: 1px dashed #999;
-      padding-top: 10px;
-    }
-    .tabs {
-      margin-top: 10px;
-    }
-    .tab-btn {
-      padding: 5px 10px;
-      cursor: pointer;
-      border: 1px solid #aaa;
-      background: #eee;
-      margin-right: 5px;
-    }
-    .tab-btn.active {
-      background: #ccc;
-    }
-    .tab-content {
-      margin-top: 10px;
-    }
+    .author-card { border: 1px solid #aaa; padding: 10px; margin-bottom: 15px; }
+    .works-list { display: none; margin-top: 10px; padding: 5px; border: 1px solid #ddd; }
   </style>
 </head>
 <body>
@@ -45,84 +15,32 @@
   <div id="authors"></div>
 
   <script>
-    let worksList = [];
-
-    // Fetch works first
-    fetch('/api/works')
-      .then(res => res.json())
-      .then(works => {
-        worksList = works;
-        loadAuthors();
-      });
-
-    function loadAuthors() {
-      fetch('/api/authors')
-        .then(res => res.json())
-        .then(authors => {
-          const container = document.getElementById('authors');
-          authors.forEach((a, index) => {
-  const uid = a.username || `author-${index}`;
-  const div = document.createElement('div');
-  div.className = 'author-card';
-  div.innerHTML = `
-    <img src="${a.image}" width="100"><br>
-    <strong>${a.name}</strong><br>
-    ${a.place}<br>
-    <em>${a.email}</em>
-
-    <div class="author-bio" id="bio-${uid}">
-      <div class="tabs">
-        <span class="tab-btn active" data-tab="bio-${uid}" onclick="showTab('${uid}', 'bio')">BIO</span>
-        <span class="tab-btn" data-tab="works-${uid}" onclick="showTab('${uid}', 'works')">WORKS</span>
-      </div>
-      <div class="tab-content" id="tab-bio-${uid}">
-        <p>${a.bio}</p>
-      </div>
-      <div class="tab-content" id="tab-works-${uid}" style="display:none;">
-        ${renderWorksForAuthor(a.username)}
-      </div>
-    </div>
-  `;
-
-  div.addEventListener('click', (e) => {
-    const isTabButton = e.target.classList.contains('tab-btn');
-    if (isTabButton) return;
-    const bioDiv = div.querySelector('.author-bio');
-    bioDiv.style.display = bioDiv.style.display === 'none' || bioDiv.style.display === '' ? 'block' : 'none';
-  });
-
-  container.appendChild(div);
-});
-
+    Promise.all([fetch('/api/authors').then(r => r.json()), fetch('/api/works').then(r => r.json())])
+      .then(([authors, works]) => {
+        const container = document.getElementById('authors');
+        authors.forEach(a => {
+          const authorWorks = works.filter(w => w.author === a.username);
+          const div = document.createElement('div');
+          div.className = 'author-card';
+          div.innerHTML = `
+            <img src="${a.image}" width="100"><br>
+            <strong>${a.name}</strong> (${a.place})<br>
+            <em>${a.email}</em><br>
+            <p>${a.bio || ''}</p>
+            <button class="show-works">Show Works</button>
+            <div class="works-list">${authorWorks.map(w => `<p>${w.title}</p>`).join('')}</div>
+          `;
+          container.appendChild(div);
         });
-    }
 
-    function renderWorksForAuthor(username) {
-      const userWorks = worksList.filter(w => w.author === username);
-      if (userWorks.length === 0) return '<p>No works published yet.</p>';
-      return userWorks.map(w => `
-        <div style="border:1px solid #aaa; margin:5px; padding:5px;">
-          <strong>${w.title}</strong> (${w.language}, ${w.type})<br>
-          <img src="${w.cover}" width="120"><br>
-          <a href="${w.file}" target="_blank">Read Work</a>
-        </div>
-      `).join('');
-    }
-function showTab(uid, tab) {
-  const bioBtn = document.querySelector(`#bio-${uid} .tab-btn[data-tab='bio-${uid}']`);
-  const worksBtn = document.querySelector(`#bio-${uid} .tab-btn[data-tab='works-${uid}']`);
-
-  const tabBtns = document.querySelectorAll(`#bio-${uid} .tab-btn`);
-  tabBtns.forEach(btn => btn.classList.remove('active'));
-  if (tab === 'bio') bioBtn?.classList.add('active');
-  if (tab === 'works') worksBtn?.classList.add('active');
-
-  document.getElementById(`tab-bio-${uid}`).style.display = tab === 'bio' ? 'block' : 'none';
-  document.getElementById(`tab-works-${uid}`).style.display = tab === 'works' ? 'block' : 'none';
-}
-
+        container.addEventListener('click', e => {
+          if (e.target.classList.contains('show-works')) {
+            const wl = e.target.nextElementSibling;
+            wl.style.display = wl.style.display === 'none' || wl.style.display === '' ? 'block' : 'none';
+          }
+        });
+      });
   </script>
-
 </body>
-<script src="/scripts/components.js"></script>
+<script src="scripts/components.js"></script>
 </html>

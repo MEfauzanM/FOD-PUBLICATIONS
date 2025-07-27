@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Read Work</title>
+</head>
+<body>
+  <h1 id="title">Loading...</h1>
+  <pre id="content" style="white-space: pre-wrap; font-size: 16px;"></pre>
+
+  <script>
+    // ✅ Get work ID from URL (e.g. read.html?id=12345)
+    const params = new URLSearchParams(window.location.search);
+    const workId = params.get('id');
+
+    // ✅ Fetch content and display
+    fetch(`/api/work-content?id=${workId}`)
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('title').innerText = `Work ID: ${workId}`;
+        document.getElementById('content').innerText = data.text || 'No content available.';
+      })
+      .catch(() => {
+        document.getElementById('content').innerText = '❌ Error loading content.';
+      });
+  </script>
+</body>
+</html>

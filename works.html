@@ -1,64 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/styles/common.css">
-    <title>FOD PUBLICATION | WORKS</title>
+  <meta charset="UTF-8">
+  <title>Works</title>
+  <link rel="stylesheet" href="styles/common.css">
+  <style>
+    .work-card { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
+    .full-content { display: none; white-space: pre-wrap; background: #fafafa; padding: 10px; margin-top: 5px; border: 1px solid #ddd; }
+  </style>
 </head>
 <body>
   <header id="navbar"></header>
-    <h1>All Works</h1>
-  <label>Filter Language: 
-    <select id="lang">
-      <option value="">All</option>
-      <option>English</option>
-      <option>Malayalam</option>
-    </select>
-  </label>
-  <label>Type: 
-    <select id="type">
-      <option value="">All</option>
-      <option>Poem</option>
-      <option>Story</option>
-      <option>Essay</option>
-      <option>Short Story</option>
-    </select>
-  </label>
-  <button onclick="loadWorks()">Filter</button>
-
+  <h1>All Works</h1>
   <div id="works"></div>
 
-  <script>
-    function loadWorks() {
-      const lang = document.getElementById('lang').value;
-      const type = document.getElementById('type').value;
-      let url = '/api/works';
-      if (lang || type) {
-        url += `?language=${lang}&type=${type}`;
-      }
+ <script>
+  fetch('/api/works')
+    .then(res => res.json())
+    .then(works => {
+      const container = document.getElementById('works');
 
-      fetch(url)
-        .then(res => res.json())
-        .then(data => {
-          const container = document.getElementById('works');
-          container.innerHTML = '';
-          data.forEach(w => {
-            container.innerHTML += `
-              <div style="border:1px solid #ccc; padding:10px; margin:10px;">
-                <img src="${w.cover}" width="150"><br>
-                <strong>${w.title}</strong><br>
-                <em>${w.language} | ${w.type}</em><br>
-                <a href="${w.file}" target="_blank">Read</a><br>
-                Author: ${w.author}
-              </div>
-            `;
-          });
-        });
-    }
-
-    window.onload = loadWorks;
-  </script>
+      works.forEach(w => {
+        const div = document.createElement('div');
+        div.className = 'work-card';
+        div.innerHTML = `
+          <h3>${w.title}</h3>
+          <img src="${w.cover}" width="120"><br>
+          <p><strong>Author:</strong> ${w.author}</p>
+          <!-- ✅ Read button now opens read.html in new tab -->
+          <button onclick="window.open('read.html?id=${w.id}', '_blank')">Read</button>
+        `;
+        container.appendChild(div);
+      });
+    });
+</script>
 </body>
-<script src="/scripts/components.js"></script>
+<script src="scripts/components.js"></script>
 </html>
